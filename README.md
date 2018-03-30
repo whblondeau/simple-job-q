@@ -1,6 +1,7 @@
 # simple-job-q
-A reliable job queue using the linux file system and CLI, with Python
-orchestration.
+
+**TL;DR: A reliable job queue using the linux file system and CLI, with Python
+orchestration.**
 
 Using traditional practices to implement a high-reliability job queue.
 
