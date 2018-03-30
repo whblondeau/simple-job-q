@@ -3,8 +3,7 @@
 **TL;DR: A reliable job queue using the linux file system and CLI, with Python
 orchestration.**
 
-Using traditional practices to implement a high-reliability job queue.
-
+## Using traditional practices to implement a high-reliability job queue.
 Intended for use with the unix/linux filesystem and command line. Orchestrated
 with Python, favoring subprocess execution of `bash` commands over native Python
 equivalents -- within reason. 
