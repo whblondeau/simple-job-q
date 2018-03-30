@@ -1,0 +1,16 @@
+fail-q README
+----
+This queue holds jobs that did not complete:
+
+    - they failed to terminated normally, or
+
+    - they encountered problems, internal or external, that would
+        prevent them from ever being able to perform their job.
+
+The Monitor places the UOW files into this queue when they are found in
+the currently_executing folder after a crash or system halt, or after
+the OS or a human operator has halted a hung state or a nonterminating loop. 
+
+The Monitor does nothing further with failed UOWs except
+to report their presence periodically.
+

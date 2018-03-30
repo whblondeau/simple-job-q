@@ -1,0 +1,15 @@
+done-q README
+
+This queue holds jobs that have successfully completed:
+
+    - they terminated normally
+
+    - they did not report an error condition that would contraindicate
+        "success" as an end state.
+
+The Monitor places the UOW files into this queue when they are found in
+the currently_executing folder, when no flagged process is running,
+with evidence of successful completion.
+
+The Monitor does nothing further with successfully completed UOWs except
+to report their presence periodically.

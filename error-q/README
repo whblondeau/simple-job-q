@@ -1,0 +1,18 @@
+done-q README
+----
+This queue holds jobs that have UNsuccessfully completed:
+
+    - they terminated normally
+
+    - they DID report an error condition that would contraindicate
+        "success" as an end state.
+
+The Monitor places the UOW files into this queue when they are found in
+the currently_executing folder, when no flagged process is running, 
+with evidence of unsuccessful completion.
+
+The Monitor does nothing further with error-completed UOWs except
+to report their presence periodically.
+
+Retry of Error-completed UOWs is never done automatically. A human
+needs to move the UOW (or a suitably modified copy) to wait-q or priority-q.

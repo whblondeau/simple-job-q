@@ -1,0 +1,10 @@
+wait-q README
+----
+This directory holds zero or more UOWs (Units of Work) and imposes an
+ordering upon them. The ordering is defined by a timestamp written in
+integer seconds since the epoch. The Monitor prepends the timestamp on the
+UOW when it encounters an unstamped UOW. If there are multiple unstamped
+UOWs, the Monitor will append a hyphen and an ordinal number, observing 
+System file stats as possible when ordering the additional number.
+
+This ordering applies to the order in which the UOWs will be executed.

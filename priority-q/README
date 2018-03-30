@@ -1,0 +1,9 @@
+priority-q README
+----
+This directory is precisely like the wait-q directory in behavior,
+content, and operations. The only difference is, the Monitor will process
+wait-q UOWs _only_ if the priority-q is empty.
+
+NOTE: the priority-q should be used only when the need is real. The
+large majority of UOWs should enter the system via wait-q and not via
+priority-q. THIS QUEUE IS FOR EXCEPTIONAL CASES.

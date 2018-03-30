@@ -1,0 +1,18 @@
+currently-executing README
+----
+This directory holds (besides this README which should remain in place):
+
+At most a single UOW. The UOW is a file correlated with a job to execute.
+The UOW can be in one of three states:
+
+    - Emplaced but not yet started (the process to be run according to the 
+        UOW's information has not yet been started)
+
+    - Started but not completed (the process is still executing)
+
+    - Finished (The process is no longer running, whether because it completed
+        normally, crashed, or was killed by the OS on behalf of a user or of
+        the logic built into the Monitor.)
+
+A UOW should be deposited by the Monitor, and removed by the Monitor. 
+Human intervention is not recommended.
