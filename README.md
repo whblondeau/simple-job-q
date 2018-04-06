@@ -1,9 +1,9 @@
 # simple-job-q
-A reliable job queue using the linux file system and CLI, with Python
-orchestration.
 
-Using traditional practices to implement a high-reliability job queue.
+**TL;DR: A reliable job queue using the linux file system and CLI, with Python
+orchestration.**
 
+## Using traditional practices to implement a high-reliability job queue.
 Intended for use with the unix/linux filesystem and command line. Orchestrated
 with Python, favoring subprocess execution of `bash` commands over native Python
 equivalents -- within reason. 
@@ -60,21 +60,22 @@ The queue is implemented as directories with conventional names:
     - `monitor.py`
     - `config.txt` (optional, for overriding defaults set in `monitor.py`)
     - `monitor_reads` (the default file for incoming messages, can be 
-      overridden in `cofig.json`)
+      overridden in `config.txt`)
     - `monitor_says` (the default file for outgoing messages, can be 
-      overridden in `cofig.json`)
+      overridden in `config.txt`)
 
   - **Queue operational directories** (these can be renamed in `config.txt`)**:**
     - **wait-q:** The principal job queue. 
     - **priority-q:** A queue for high-priority jobs. UOWs in `wait-q` will not
-      be processed unless the priority-q is empty.
+      be processed unless `priority-q` is empty.
     - **currently-executing:** A container for a **single** UOW, which is about
       to be executed, is currently being executed, or has completed execution.
     - **done-q:** A queue for successfully completed UOWs.
     - **error-q:** A queue for UOWs that completed, but with an error condition
       indicating an unsuccessful attempt.
     - **fail-q:** A queue for UOWs that did not complete. "Fail", in this case,
-      means "Failed in an out-of-context way."
+      means "Failed in an out-of-context way." (Example: network outage during job
+      execution.)
 
   - **Non-queue operational/convenience directories:**
     - **trash:** A discard directory for discovered files that are
@@ -95,6 +96,8 @@ The queues have the following design constraints:
 ## The Monitor
 This is the active executing entity in simple-job-q. It assumes 
 responsibility for:
+  - Reading incoming messages;
+  - Writing outgoing mssages;
   - Tracking the existence and positions of UOW files in the directories;
   - Validating those files;
   - Modifying and moving the files as necessary;
@@ -102,6 +105,7 @@ responsibility for:
   - Reporting status of enqueued UOWs;
   - Reporting status of active job processes.
 
+The Monitor is implemented in `monitor.py`
 
 ## Logic of Monitor Operation
 
@@ -168,6 +172,9 @@ stuff that people can do already without undue burden._
 This is optional, but way too handy. Stand up a description of `simple-job-q`'s
 snapshot status, and park it someplace (the exact place is configurable).
 
+One likely place to post a digest of the status would be in a web server, as HTML
+with drill-down links for detail information.
+
 ### Go to sleep.
 
 That's all.
@@ -183,11 +190,14 @@ each with:
   - a human-readable description of the Monitor's response,
   - a reference to an implementing operation function.
 
+The Monitor will report via outgoing messages when it finds incorrect content
+in incoming messages, and will thn remove that incorrect content.
+
 The Monitor deletes incoming messages that it has acted upon.
 
 **Outgoing messages** are notifications and responses written by the Monitor.
 
-All messages are timestamped.
+All outgoing messages are timestamped.
 
 Messages are appended to files, one for incoming messages, one for outgoing. The
 file pathnames are configured in `monitor.py` and (optionally) overriddden in
