@@ -534,14 +534,14 @@ config = {
     # the output flags file is wiped clean with every monitor restart.
     'outgoing_message_filepath': 'monitor_says',
     # any entry in the input flags file is deleted when the monitor reads it.
-    # Note: this can be a symlink.
+    # Note: this can point to a symlink.
     'incoming_message_filepath': 'monitor_reads',
 
     # The jobs in this queue will be of various types. Here, as an example, 
     # is the case in which the commands launched by this queue are ansible
     # deploys. The timeout is in seconds; the ansible process in this example
     # should not take more than 30 minutes.
-    'managed_procnames': [{'ansible', {'timeout': 30 * 60}}],
+    'managed_procnames': [{'procname': 'ansible', 'timeout': 30 * 60}],
 
 }
 
@@ -580,5 +580,31 @@ while true:
     read_incoming_messages()
 
     # is one running already? We will never launch if one is.
-    for procname in config['managed_procnames']:
+    existing_job_running = False
+    for procdef in config['managed_procnames']:
+
+        running = processes_already_running(procdef['procname'])
+        if running:
+            existing_job_running = True
+
+        # sanity check: is any process running too long?
+        toolong_msg = []
+        for proc in running:
+            proc = proc.split()
+            if len(proc) > 1:
+                running_for = int(proc[1].strip())
+                if running_for > procdef['timeout']:
+                    msg = procdef['procname'] + ' process running for ' + str(running_for)
+                    msg += ' sec. Timeout is ' + str(procdef['procname']) + '.'
+                    toolong_msg.append(msg)
+
+        if toolong_msg:
+            write_outgoing_message('\n'.join(toolong_msg))
+
+    if existing_job_running:
+        # nothing to do
+        sleep_time_seconds(config['sleep_time_seconds'])
+
+    
+
 
