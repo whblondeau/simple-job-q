@@ -307,6 +307,32 @@ def processes_already_running(procname):
     return execute_cli(cmdstring)
 
 
+def are_existing_jobs_running(managed_procnames):
+    '''This 
+    '''
+    existing_job_running = False
+    for procdef in managed_procnames:
+
+        running = processes_already_running(procdef['procname'])
+        if running:
+            existing_job_running = True
+
+        # sanity check: is any process running too long?
+        toolong_msg = []
+        for proc in running:
+            proc = proc.split()
+            if len(proc) > 1:
+                running_for = int(proc[1].strip())
+                if running_for > procdef['timeout']:
+                    msg = procdef['procname'] + ' process running for ' + str(running_for)
+                    msg += ' sec. Timeout is ' + str(procdef['procname']) + '.'
+                    toolong_msg.append(msg)
+
+        if toolong_msg:
+            write_outgoing_message('\n'.join(toolong_msg))
+
+    return existing_job_running
+
 
 
 # -------- Message I/O
@@ -442,7 +468,38 @@ def assess_and_act():
 
 
 
+# -------- Primary monitor actions
 
+
+
+def are_existing_jobs_running(managed_procnames):
+    '''This 
+    '''
+    existing_job_running = False
+    for procdef in managed_procnames:
+
+        running = processes_already_running(procdef['procname'])
+        if running:
+            existing_job_running = True
+
+        # sanity check: is any process running too long?
+        toolong_msg = []
+        for proc in running:
+            proc = proc.split()
+            if len(proc) > 1:
+                running_for = int(proc[1].strip())
+                if running_for > procdef['timeout']:
+                    msg = procdef['procname'] + ' process running for ' + str(running_for)
+                    msg += ' sec. Timeout is ' + str(procdef['procname']) + '.'
+                    toolong_msg.append(msg)
+
+        if toolong_msg:
+            write_outgoing_message('\n'.join(toolong_msg))
+
+    return existing_job_running
+
+
+def snapshot_state():
 
 
 
@@ -522,6 +579,8 @@ qconfig = {
     'fail_q': 'fail-q',
     # nonqueue container for invalid files
     'trash': 'trash,',
+    # stash for historical content
+    'archive': 'archive',
 }
 
 config = {
@@ -579,31 +638,18 @@ while true:
     # check for incoming messages. Execute any existing commands.
     read_incoming_messages()
 
-    # is one running already? We will never launch if one is.
-    existing_job_running = False
-    for procdef in config['managed_procnames']:
 
-        running = processes_already_running(procdef['procname'])
-        if running:
-            existing_job_running = True
+    # is one of our jobs running already? We will go back to sleep if one is.
+    already_running = are_existing_jobs_running(config['managed_procnames'])
 
-        # sanity check: is any process running too long?
-        toolong_msg = []
-        for proc in running:
-            proc = proc.split()
-            if len(proc) > 1:
-                running_for = int(proc[1].strip())
-                if running_for > procdef['timeout']:
-                    msg = procdef['procname'] + ' process running for ' + str(running_for)
-                    msg += ' sec. Timeout is ' + str(procdef['procname']) + '.'
-                    toolong_msg.append(msg)
-
-        if toolong_msg:
-            write_outgoing_message('\n'.join(toolong_msg))
-
-    if existing_job_running:
+    if already_running:
         # nothing to do
         sleep_time_seconds(config['sleep_time_seconds'])
+        continue
+
+
+
+
 
     
 
