@@ -443,9 +443,23 @@ def check_uow(uow_content):
 
 
 def snapshot_queues():
-    for qname in queue_names:
+    retval = {}
+    for qname in queue_keys:
         dirname = config[qname]
-        filestats = queue_names
+
+        # default
+        retval[dirname] = []
+
+        # list content, ignoring subdirectories
+        cmd = 'ls -lt ' + dirname + ' | grep "^-"'
+
+        dirlist = execute_cli(cmdstring).split()
+
+        if dirlist:
+            retval[dirname] = dirlist
+
+    return retval
+
 
 
 
@@ -554,34 +568,16 @@ incoming_msg_howto = '''# MESSAGES FOR MONITOR HOWTO:
 
 # -------------------------------------------------------------- CONFIG DEFAULTS
 
-queue_names = [
-    'wait_q',
+# an ordered list of queue keys
+queue_keys = [
     'priority_q',
+    'wait_q',
     'currently_executing',
     'done_q',
     'error_q',
     'fail_q',
 ]
 
-qconfig = {
-    # principal job queue
-    'wait_q': 'wait-q',
-    # dedicated queue for high-priority jobs
-    'priority_q': 'priority-q',
-    # location for currently executing UOW
-    'currently_executing': 'currently-executing',
-    # queue for successfully completed UOWs
-    'done_q': 'done-q',
-    # queue for UOWs that completed, but with an error
-    # condition indicating an unsuccessful attempt
-    'error_q': 'error-q',
-    # queue for UOWs that did not complete
-    'fail_q': 'fail-q',
-    # nonqueue container for invalid files
-    'trash': 'trash,',
-    # stash for historical content
-    'archive': 'archive',
-}
 
 config = {
 
@@ -601,6 +597,27 @@ config = {
     # deploys. The timeout is in seconds; the ansible process in this example
     # should not take more than 30 minutes.
     'managed_procnames': [{'procname': 'ansible', 'timeout': 30 * 60}],
+
+
+    # directory structures
+
+    # principal job queue
+    'wait_q': 'wait-q',
+    # dedicated queue for high-priority jobs
+    'priority_q': 'priority-q',
+    # location for currently executing UOW
+    'currently_executing': 'currently-executing',
+    # queue for successfully completed UOWs
+    'done_q': 'done-q',
+    # queue for UOWs that completed, but with an error
+    # condition indicating an unsuccessful attempt
+    'error_q': 'error-q',
+    # queue for UOWs that did not complete
+    'fail_q': 'fail-q',
+    # nonqueue container for invalid files
+    'trash': 'trash,',
+    # stash for historical content
+    'archive': 'archive',
 
 }
 
